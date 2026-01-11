@@ -1,5 +1,8 @@
 import cv2
 import time
+import os
+from datetime import datetime
+from helper import save_snapshot
 from video import get_video_stream
 from model import load_model
 from detector import get_tracked_persons
@@ -61,7 +64,12 @@ def main():
             # ALERT logic
             if elapsed >= PERSON_ALERT_SECONDS and track_id not in alerted:
                 print(f"🚨 ALERT: Person ID {track_id} loitering {int(elapsed)}s")
+
+                # Save snapshot
+                snapshot_path = save_snapshot(frame, track_id)
+
                 alerted.add(track_id)
+
 
         # Cleanup disappeared tracks
         for track_id in list(last_seen.keys()):

@@ -1,6 +1,6 @@
 from ultralytics import YOLO
 
-MODEL_PATH = "yolov8n.pt"
+MODEL_PATH = "models/yolov8s.pt"
 
 def load_model():
     model = YOLO(MODEL_PATH)
