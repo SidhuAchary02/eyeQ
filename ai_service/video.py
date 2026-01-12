@@ -1,9 +1,7 @@
 import cv2
 
-RTSP_URL = "rtsp://localhost:8554/webcam"
-
-def get_video_stream():
-    cap = cv2.VideoCapture(RTSP_URL, cv2.CAP_FFMPEG)
+def get_video_stream(rtsp_url: str):
+    cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
 
     # CRITICAL for smoothness
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
