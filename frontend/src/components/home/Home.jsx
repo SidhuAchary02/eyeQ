@@ -1,12 +1,22 @@
 import { Menu, X, Video, Shield, Zap, Code } from "lucide-react"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import logo from "../../assets/logo.png"
 import { useNavigate } from "react-router-dom"
+import { AuthContext } from "../../context/AuthContext"
 
 export default function Home() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const {user} = useContext(AuthContext);
 
     const navigate = useNavigate();
+
+    const handleGetStarted = () => {
+        if(user){
+            navigate("/dashboard");
+        } else {
+            navigate("/login");
+        }
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#2d2d2d] to-[#1a1a1a] text-white">
@@ -25,7 +35,7 @@ export default function Home() {
                             <a href="#" className="text-gray-700 hover:text-gray-600 transition">
                                 Home
                             </a>
-                            <a href="#" className="text-gray-700 hover:text-gray-600 transition">
+                            <a href="https://github.com/SidhuAchary02/eyeQ" className="text-gray-700 hover:text-gray-600 transition">
                                 Github
                             </a>
                             <a href="#" className="text-gray-700 hover:text-gray-600 transition">
@@ -38,9 +48,9 @@ export default function Home() {
 
                         {/* Login Button & Mobile Menu */}
                         <div className="flex items-center gap-4">
-                            <button  
-                            onClick={() => navigate("/login")}
-                            className="hidden md:block px-4 py-2 bg-[#1a1a1a] text-white rounded hover:bg-black transition font-medium">
+                            <button
+                                onClick={() => navigate("/login")}
+                                className="hidden md:block px-4 py-2 bg-[#2E3133] text-white rounded transition font-medium">
                                 EyeQ Login
                             </button>
                             <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -55,7 +65,7 @@ export default function Home() {
                             <a href="#" className="block px-4 py-2 text-gray-700 hover:text-gray-600">
                                 Home
                             </a>
-                            <a href="#" className="block px-4 py-2 text-gray-700 hover:text-gray-600">
+                            <a href="https://github.com/SidhuAchary02/eyeQ" className="block px-4 py-2 text-gray-700 hover:text-gray-600">
                                 Github
                             </a>
                             <a href="#" className="block px-4 py-2 text-gray-700 hover:text-gray-600">
@@ -64,9 +74,9 @@ export default function Home() {
                             <a href="#" className="block px-4 py-2 text-gray-700 hover:text-gray-600">
                                 Demo
                             </a>
-                            <button className="w-fit px-4 py-2 bg-[#1a1a1a] text-white rounded hover:bg-black transition font-medium">
+                            <a href="/login" className="w-fit px-4 py-2 bg-[#1a1a1a] text-white rounded hover:bg-black transition font-medium">
                                 EyeQ Login
-                            </button>
+                            </a>
                         </div>
                     )}
                 </div>
@@ -80,9 +90,8 @@ export default function Home() {
                         {/* Headline */}
                         <div>
                             <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight text-balance">
-                                Monitor your security cameras with locally processed AI
+                                Monitor your security cameras with Processed AI
                             </h1>
-                            <div className="w-12 h-1 bg-white"></div>
                         </div>
 
                         {/* Description */}
@@ -95,8 +104,10 @@ export default function Home() {
                         </div>
 
                         {/* CTA Button */}
-                        <button className="px-8 py-3 bg-white text-black font-semibold rounded hover:bg-gray-200 transition text-lg">
-                            Learn about EyeQ
+                        <button
+                            onClick={handleGetStarted}
+                            className="px-8 py-3 bg-white text-black font-semibold rounded hover:bg-gray-200 transition text-lg">
+                            Get Started
                         </button>
                     </div>
 

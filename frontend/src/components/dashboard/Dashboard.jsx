@@ -1,14 +1,17 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { Activity, Video, AlertCircle, TrendingUp, Menu } from "lucide-react"
 import Sidebar from "./Sidebar"
 import CamerasPage from "./camera/CamerasPage"
 import ImagesPage from "./ImagesPage"
 import ModelsPage from "./ModelsPage"
 import SettingsPage from "./SettingsPage"
+import { AuthContext } from "../../context/AuthContext"
 
 export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const {user, loading} = useContext(AuthContext);
 
   const stats = [
     { label: "Active Cameras", value: "4", icon: Video, color: "bg-blue-100 text-blue-600" },
@@ -17,6 +20,10 @@ export default function Dashboard() {
     // { label: "System Status", value: "Healthy", icon: Activity, color: "bg-emerald-100 text-emerald-600" },
   ]
 
+  const userName = user ? user.email : null;
+
+  if(loading) return null;
+
   const renderPage = () => {
     switch (currentPage) {
       case "dashboard":
@@ -24,7 +31,7 @@ export default function Dashboard() {
           <div className="p-6 space-y-6">
             <div>
               <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
-              <p className="text-gray-600 mt-1">Welcome back! Here's your system overview.</p>
+              <p className="text-gray-600 mt-1">Welcome {userName}! Here's your system overview.</p>
             </div>
 
             {/* Stats Grid */}

@@ -1,21 +1,35 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { Eye, EyeOff, LogOut } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import logow from "../../assets/logow.png"
 import google from "../../assets/google.png"
+import axios from "axios"
+import { AuthContext } from "../../context/AuthContext"
 
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
+    const {setUser} = useContext(AuthContext)
 
     const navigate = useNavigate();
 
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        console.log("Login attempt with email:", email)
+    const handleSubmit = async (e) => {
+
+        e.preventDefault();
+        try {
+            const data = await axios.post("http://localhost:8000/auth/login",
+                { email, password },
+                { withCredentials: true });
+            console.log("Login successful:", data);
+            setUser(data.data);
+            navigate("/dashboard");
+
+        } catch (error) {
+            console.log("login failed", error)
+        }
     }
 
     return (

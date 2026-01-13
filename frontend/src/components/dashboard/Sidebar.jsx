@@ -1,6 +1,12 @@
 import { Home, ImageIcon, Video, Zap, Settings, CreditCard, LogOut } from "lucide-react"
 import logo from "../../assets/logo.png"
+import axios from "axios"
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import { useContext } from "react";
 export default function Sidebar({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen }) {
+  const {setUser} = useContext(AuthContext);
+  const navigate = useNavigate();
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "cameras", label: "Cameras", icon: Video },
@@ -8,14 +14,19 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarOpen, setS
     // { id: "models", label: "Models", icon: Zap },
   ]
 
-//   const bottomItems = [
-//     { id: "settings", label: "Settings", icon: Settings },
-//     { id: "subscription", label: "Subscription", icon: CreditCard },
-//   ]
+  //   const bottomItems = [
+  //     { id: "settings", label: "Settings", icon: Settings },
+  //     { id: "subscription", label: "Subscription", icon: CreditCard },
+  //   ]
 
   const handleNavClick = (id) => {
     setCurrentPage(id)
     setSidebarOpen(false)
+  }
+
+  const handleLogout = async () => {
+    await axios.post("http://localhost:8000/auth/logout", {}, { withCredentials: true });
+    setUser(null);
   }
 
   return (
@@ -38,9 +49,8 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarOpen, setS
             <button
               key={id}
               onClick={() => handleNavClick(id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                currentPage === id ? "bg-blue-50 text-blue-600" : "text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${currentPage === id ? "bg-blue-50 text-blue-600" : "text-gray-700 hover:bg-gray-50"
+                }`}
             >
               <Icon size={20} />
               <span className="font-medium">{label}</span>
@@ -62,24 +72,25 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarOpen, setS
               <span className="font-medium">{label}</span>
             </button>
           ))}
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-            <LogOut size={20} />
-            <span className="font-medium">Sign out</span>
-          </button>
         </div> */}
+        <button
+        onClick={handleLogout}
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+          <LogOut size={20} />
+          <span className="font-medium">logout</span>
+        </button>
       </aside>
 
       {/* Mobile Sidebar */}
       <aside
-        className={`fixed inset-0 w-64 bg-white flex flex-col z-40 transform transition-transform md:hidden ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-0 w-64 bg-white flex flex-col z-40 transform transition-transform md:hidden ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Logo */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 text-white rounded-lg flex items-center justify-center font-bold">
-                <img src={logo} alt="" />
+              <img src={logo} alt="" />
             </div>
             <span className="font-bold text-gray-900">eyeQ</span>
           </div>
@@ -91,9 +102,8 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarOpen, setS
             <button
               key={id}
               onClick={() => handleNavClick(id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                currentPage === id ? "bg-blue-50 text-blue-600" : "text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${currentPage === id ? "bg-blue-50 text-blue-600" : "text-gray-700 hover:bg-gray-50"
+                }`}
             >
               <Icon size={20} />
               <span className="font-medium">{label}</span>
@@ -101,9 +111,9 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarOpen, setS
           ))}
         </nav>
 
-        {/* Bottom Menu
-        <div className="border-t border-gray-200 px-4 py-4 space-y-2">
-          {bottomItems.map(({ id, label, icon: Icon }) => (
+        {/* Bottom Menu */}
+        <div className="border-t border-gray-200 px-4 py-4 mb-12 space-y-2">
+          {/* {bottomItems.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => handleNavClick(id)}
@@ -114,12 +124,15 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarOpen, setS
               <Icon size={20} />
               <span className="font-medium">{label}</span>
             </button>
-          ))}
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+          ))} */}
+          <button
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+            onClick={handleLogout}
+          >
             <LogOut size={20} />
-            <span className="font-medium">Sign out</span>
-          </button> 
-        </div> */}
+            <span className="font-medium">logout</span>
+          </button>
+        </div>
       </aside>
     </>
   )
