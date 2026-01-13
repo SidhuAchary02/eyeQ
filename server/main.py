@@ -1,9 +1,15 @@
 from fastapi import FastAPI, HTTPException
+from sqlmodel import SQLModel
+from db import engine
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from pydantic import BaseModel
+from routes.camera import router as camera_router
+
+
 
 app = FastAPI()
+app.include_router(camera_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -12,6 +18,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+def on_startup():
+    SQLModel.metadata.create_all(engine)
 
 class DetectionRequest(BaseModel):
     rtsp_url: str
