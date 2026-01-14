@@ -3,6 +3,7 @@ import { Eye, EyeOff, X } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import logow from "../../assets/logow.png"
 import google from "../../assets/google.png"
+import axios from "axios"
 
 export default function Signup() {
     const [fullName, setFullName] = useState("")
@@ -12,10 +13,24 @@ export default function Signup() {
 
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         console.log("signup attempt with email:", email)
+        try {
+            const data = await axios.post("http://localhost:8000/auth/signup",
+                { full_name: fullName, email, password },
+                { withCredentials: true });
+            console.log("Signup successful:", data);
+            navigate("/");
+        } catch (error) {
+            console.log("Signup failed", error)
+        }
     }
+
+
+    const handleGoogleLogin = () => {
+        window.location.href = "http://localhost:8000/auth/google/login";
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#1c1c1c] to-[#0b0b0b] relative overflow-hidden flex items-center justify-center p-4">
@@ -50,11 +65,11 @@ export default function Signup() {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-3">
                     {/* Email Field */}
                     <div>
                         <input
-                            type="fullName"
+                            type="text"
                             placeholder="Full Name"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
@@ -103,19 +118,19 @@ export default function Signup() {
                 </form>
 
                 {/* Divider */}
-                <div className="flex items-center gap-1 my-3">
+                {/* <div className="flex items-center gap-1 my-3">
                     <div className="flex-1 border-t border-gray-700"></div>
                     <span className="text-gray-500 text-sm">or</span>
                     <div className="flex-1 border-t border-gray-700"></div>
                 </div>
 
-                {/* Google Button */}
-                <button className="w-full px-4 py-3 border border-zinc-700 bg-zinc-900 text-white font-semibold rounded-lg flex items-center justify-center gap-3 transition cursor-pointer">
+                <button
+                    onClick={handleGoogleLogin}
+                    className="w-full px-4 py-3 border border-zinc-700 bg-zinc-900 text-white font-semibold rounded-lg flex items-center justify-center gap-3 transition cursor-pointer">
                     <img src={google} width={14} alt="google icon" />
                     Continue with Google
-                </button>
+                </button> */}
 
-                {/* Skip Link */}
                 <div className="text-center mt-4">
                     <button
                         type="button"

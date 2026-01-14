@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from sqlmodel import SQLModel
 from db import engine
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+from config import JWT_SECRET_KEY
 import httpx
 from pydantic import BaseModel
 from routes.camera import router as camera_router
@@ -18,6 +20,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=JWT_SECRET_KEY,
+    same_site="lax",
+)
+
 
 @app.on_event("startup")
 def on_startup():

@@ -6,12 +6,12 @@ import { AuthContext } from "../../context/AuthContext"
 
 export default function Home() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-    const {user} = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
 
     const navigate = useNavigate();
 
     const handleGetStarted = () => {
-        if(user){
+        if (user) {
             navigate("/dashboard");
         } else {
             navigate("/login");
@@ -32,16 +32,31 @@ export default function Home() {
 
                         {/* Desktop Menu */}
                         <div className="hidden md:flex items-center gap-8">
-                            <a href="#" className="text-gray-700 hover:text-gray-600 transition">
+                            <a href="/" className="text-gray-700 hover:text-gray-600 transition">
                                 Home
                             </a>
-                            <a href="https://github.com/SidhuAchary02/eyeQ" className="text-gray-700 hover:text-gray-600 transition">
+                            <a
+                                href="https://github.com/SidhuAchary02/eyeQ"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-700 hover:text-gray-600 transition hover:underline"
+                            >
                                 Github
                             </a>
-                            <a href="#" className="text-gray-700 hover:text-gray-600 transition">
+                            <a
+                                href="#"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-700 hover:text-gray-600 transition hover:underline"
+                            >
                                 Documentation
                             </a>
-                            <a href="#" className="text-gray-700 hover:text-gray-600 transition">
+                            <a
+                                href="#"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-700 hover:text-gray-600 transition hover:underline"
+                            >
                                 Demo
                             </a>
                         </div>

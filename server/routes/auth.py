@@ -1,16 +1,29 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
-from utils.jwt import create_access_token
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from jose import jwt
+from datetime import datetime, timedelta
 from sqlmodel import Session, select
-from models.user import User
 from deps import get_session
 from utils.security import hash_password, verify_password
 from schemas.auth import SignupRequest, LoginRequest
+from models.user import User
 from utils.auth import get_current_user
+from config import (
+    JWT_SECRET_KEY,
+)
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+def create_jwt(sub: str, email: str = None):
+    payload = {
+        "sub": sub,
+        "exp": datetime.utcnow() + timedelta(days=7)
+    }
+    if email:
+        payload["email"] = email
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm="HS256")
+
 @router.post("/signup")
-def signup(payload: SignupRequest, session: Session = Depends(get_session)):
+def signup(payload: SignupRequest, response: Response, session: Session = Depends(get_session)):
     try:
         password_hash = hash_password(payload.password)
     except ValueError as e:
@@ -33,6 +46,17 @@ def signup(payload: SignupRequest, session: Session = Depends(get_session)):
     session.commit()
     session.refresh(user)
 
+    token = create_jwt(str(user.id), user.email)
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=60 * 60,
+    )
+
     return {
         "id": user.id,
         "full_name": user.full_name,
@@ -50,10 +74,7 @@ def login(payload: LoginRequest, response: Response, session: Session = Depends(
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token({
-        "sub": str(user.id),
-        "email": user.email
-    })
+    token = create_jwt(str(user.id), user.email)
 
     response.set_cookie(
         key="access_token",
@@ -80,3 +101,4 @@ def me(current_user: dict = Depends(get_current_user)):
 def logout(response: Response):
     response.delete_cookie("access_token")
     return {"message": "Logged out"}
+

@@ -17,7 +17,6 @@ export default function LoginPage() {
 
 
     const handleSubmit = async (e) => {
-
         e.preventDefault();
         try {
             const data = await axios.post("http://localhost:8000/auth/login",
@@ -65,7 +64,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-3">
                     {/* Email Field */}
                     <div>
                         <input
@@ -107,20 +106,17 @@ export default function LoginPage() {
                     </button>
                 </form>
 
-                {/* Divider */}
-                <div className="flex items-center gap-1 my-3">
+                {/* <div className="flex items-center gap-1 my-3">
                     <div className="flex-1 border-t border-gray-700"></div>
                     <span className="text-gray-500 text-sm">or</span>
                     <div className="flex-1 border-t border-gray-700"></div>
                 </div>
 
-                {/* Google Button */}
                 <button className="w-full px-4 py-3 border border-zinc-700 bg-zinc-900 text-white font-semibold rounded-lg flex items-center justify-center gap-3 transition cursor-pointer">
                     <img src={google} width={14} alt="google icon" />
                     Continue with Google
-                </button>
+                </button>  */}
 
-                {/* Skip Link */}
                 <div className="text-center mt-4">
                     <button
                         type="button"
