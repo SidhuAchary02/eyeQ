@@ -15,7 +15,7 @@ app.include_router(auth_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,7 +24,7 @@ app.add_middleware(
 app.add_middleware(
     SessionMiddleware,
     secret_key=JWT_SECRET_KEY,
-    same_site="lax",
+    same_site="none",
 )
 
 

@@ -11,13 +11,6 @@ export default function CameraList({ cameras, onAdd }) {
           <h3 className="text-xl font-bold text-gray-900">Your Cameras</h3>
           <p className="text-gray-600">Manage and monitor your camera feeds</p>
         </div>
-        <button
-          onClick={onAdd}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          <Plus size={20} />
-          Add Camera
-        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

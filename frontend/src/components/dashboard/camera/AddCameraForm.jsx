@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Camera, Cctv, ChevronDown, Webcam } from "lucide-react"
+import { createCamera } from "./cameraApi"
 
 
 export const AddCameraForm = () => {
@@ -39,19 +40,7 @@ export const AddCameraForm = () => {
         rtsp_url: sourceType === "rtsp" ? formData.rtsp_url : null,
       };
 
-      const res = await fetch("http://127.0.0.1:8000/cameras", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to save camera");
-      }
-
-      const data = await res.json();
+      const data = await createCamera(payload);
       console.log("Saved camera:", data);
       alert("Camera saved successfully!");
     } catch (err) {

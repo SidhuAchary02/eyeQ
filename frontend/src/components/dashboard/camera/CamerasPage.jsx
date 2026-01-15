@@ -3,6 +3,7 @@ import { getCameras } from "./cameraApi";
 import AddCameraEmpty from "./AddCameraEmpty";
 import { AddCameraForm } from "./AddCameraForm";
 import CameraList from "./CameraList";
+import CameraStream from "../cameraFeed/CameraStream";
 
 export default function CamerasPage() {
   const [cameras, setCameras] = useState([]);
@@ -13,13 +14,18 @@ export default function CamerasPage() {
   async function fetchCameras() {
     try {
       const res = await getCameras();   // axios response
-      setCameras(res);
+      setCameras(res || []);
 
-      if (res.length === 0) {
+      // Only show form if no cameras exist
+      if (!res || res.length === 0) {
         setShowForm(true);
+      } else {
+        setShowForm(false);
       }
     } catch (err) {
-      console.error(err);
+      console.error("get camera err",err);
+      setCameras([]);
+      setShowForm(true);
     } finally {
       setLoading(false);
     }
@@ -27,6 +33,7 @@ export default function CamerasPage() {
   fetchCameras();
 }, []);
 
+console.log("cameras", cameras)
 
   if (loading) return <p>Loadin cameras...</p>;
 
@@ -40,6 +47,8 @@ export default function CamerasPage() {
         <AddCameraEmpty onAdd={() => setShowForm(true)} />
       )}
       {showForm && <AddCameraForm onSaved={() => setShowForm(false)} />}
+        <CameraStream rtspUrl="rtsp://localhost:8554/webcam" />
+
 
       {cameras.length > 0 && !showForm && (
         <CameraList cameras={cameras} onAdd={() => setShowForm(true)} />

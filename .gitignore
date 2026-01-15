@@ -11,6 +11,8 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+snapshots/
+
 
 # ===== Python =====
 venv/

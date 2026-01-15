@@ -21,7 +21,10 @@ export default function Signup() {
                 { full_name: fullName, email, password },
                 { withCredentials: true });
             console.log("Signup successful:", data);
-            navigate("/");
+            const userData = data.data;
+            localStorage.setItem("access_token", userData.access_token || userData.token);
+            localStorage.setItem("user", JSON.stringify(userData));
+            navigate("/dashboard");
         } catch (error) {
             console.log("Signup failed", error)
         }

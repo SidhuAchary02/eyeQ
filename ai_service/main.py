@@ -150,37 +150,122 @@ async def start_detection(request: DetectionRequest, background_tasks: Backgroun
 
 @app.get("/stream")
 async def stream(rtsp_url: str):
+    """Stream video with real-time person tracking and weapon detection"""
     def generate():
-        cap = get_video_stream(rtsp_url)
-        model = load_model()
-        weapon_model = load_weapon_model()
-        first_seen = {}
-        last_seen = {}
-        alerted = set()
-        weapon_boxes = []
-        last_weapon_check = 0
+        try:
+            cap = get_video_stream(rtsp_url)
+            model = load_model()
+            weapon_model = load_weapon_model()
+            
+            first_seen = {}
+            last_seen = {}
+            alerted = set()
+            weapon_boxes = []
+            last_weapon_check = 0
+            
+            print(f"🎬 Streaming started for: {rtsp_url}")
 
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    print("❌ Failed to read frame from stream")
+                    break
 
-            now = time.time()
+                now = time.time()
 
-            # Person tracking
-            results = model.track(frame, persist=True)
-            # ... (add the rest of the detection logic here, similar to run_detection)
-            # For brevity, assume we process and draw on frame
+                # ---------------- PERSON TRACKING ----------------
+                results = model.track(
+                    frame,
+                    persist=True,
+                    conf=0.5,
+                    verbose=False
+                )
 
-            # Encode frame
-            ret, buffer = cv2.imencode('.jpg', frame)
-            if not ret:
-                continue
-            frame_bytes = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+                tracked_persons = get_tracked_persons(results)
+                active_ids = set()
 
-        cap.release()
+                for track_id, x1, y1, x2, y2, conf in tracked_persons:
+                    active_ids.add(track_id)
+
+                    if track_id not in first_seen:
+                        first_seen[track_id] = now
+                        print(f"👤 Person ID {track_id} appeared")
+
+                    last_seen[track_id] = now
+                    elapsed = now - first_seen[track_id]
+
+                    # Draw person box (GREEN)
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(
+                        frame,
+                        f"ID {track_id} | {int(elapsed)}s",
+                        (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.6,
+                        (0, 255, 0),
+                        2
+                    )
+
+                    # Loitering alert
+                    if elapsed >= PERSON_ALERT_SECONDS and track_id not in alerted:
+                        print(f"🚨 ALERT: Person ID {track_id} loitering {int(elapsed)}s")
+                        save_snapshot(frame, track_id)
+                        alerted.add(track_id)
+
+                # ---------------- WEAPON DETECTION (LOW FPS) ----------------
+                if now - last_weapon_check >= 1 / WEAPON_DETECTION_FPS:
+                    weapon_boxes.clear()
+
+                    weapon_results = weapon_model(frame, conf=WEAPON_CONF, verbose=False)
+
+                    for r in weapon_results:
+                        for box in r.boxes:
+                            cls_id = int(box.cls[0])
+                            label = r.names[cls_id].lower()
+                            x1, y1, x2, y2 = map(int, box.xyxy[0])
+                            conf = float(box.conf[0])
+                            weapon_boxes.append((label, x1, y1, x2, y2, conf))
+                            print(f"🔫 Weapon detected: {label} ({conf:.2f})")
+
+                    last_weapon_check = now
+
+                # ---------------- DRAW WEAPON BOXES (RED) ----------------
+                for label, x1, y1, x2, y2, conf in weapon_boxes:
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                    cv2.putText(
+                        frame,
+                        f"{label.upper()} {conf:.2f}",
+                        (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.6,
+                        (0, 0, 255),
+                        2
+                    )
+
+                # ---------------- CLEANUP DISAPPEARED PERSONS ----------------
+                for track_id in list(last_seen.keys()):
+                    if track_id not in active_ids:
+                        if now - last_seen[track_id] > TRACK_DISAPPEAR_RESET:
+                            first_seen.pop(track_id, None)
+                            last_seen.pop(track_id, None)
+                            alerted.discard(track_id)
+                            print(f"👋 Person ID {track_id} left")
+
+                # Encode frame to JPEG
+                ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                if not ret:
+                    continue
+                
+                frame_bytes = buffer.tobytes()
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n'
+                       b'Content-Length: ' + str(len(frame_bytes)).encode() + b'\r\n\r\n' + frame_bytes + b'\r\n')
+
+        except Exception as e:
+            print(f"❌ Stream error: {e}")
+        finally:
+            cap.release()
+            print("🎬 Stream ended")
 
     return StreamingResponse(generate(), media_type='multipart/x-mixed-replace; boundary=frame')
 

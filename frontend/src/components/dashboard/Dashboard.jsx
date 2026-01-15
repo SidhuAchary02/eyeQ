@@ -2,7 +2,7 @@ import { useContext, useState } from "react"
 import { Activity, Video, AlertCircle, TrendingUp, Menu } from "lucide-react"
 import Sidebar from "./Sidebar"
 import CamerasPage from "./camera/CamerasPage"
-import ImagesPage from "./ImagesPage"
+import ImagesPage from "./cameraFeed/ImagesPage"
 import ModelsPage from "./ModelsPage"
 import SettingsPage from "./SettingsPage"
 import { AuthContext } from "../../context/AuthContext"
@@ -20,8 +20,6 @@ export default function Dashboard() {
     // { label: "System Status", value: "Healthy", icon: Activity, color: "bg-emerald-100 text-emerald-600" },
   ]
 
-  const userName = user ? user.email : null;
-
   if(loading) return null;
 
   const renderPage = () => {
@@ -31,7 +29,7 @@ export default function Dashboard() {
           <div className="p-6 space-y-6">
             <div>
               <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
-              <p className="text-gray-600 mt-1">Welcome {userName}! Here's your system overview.</p>
+              <p className="text-gray-600 mt-1">Welcome {user?.full_name}! Here's your system overview.</p>
             </div>
 
             {/* Stats Grid */}

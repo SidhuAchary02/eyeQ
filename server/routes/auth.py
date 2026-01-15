@@ -53,14 +53,15 @@ def signup(payload: SignupRequest, response: Response, session: Session = Depend
         value=token,
         httponly=True,
         secure=False,
-        samesite="lax",
-        max_age=60 * 60,
+        samesite="none",
+        max_age=30*24*60*60,
     )
 
     return {
         "id": user.id,
         "full_name": user.full_name,
-        "email": user.email
+        "email": user.email,
+        "access_token": token
     }
 
 
@@ -81,14 +82,15 @@ def login(payload: LoginRequest, response: Response, session: Session = Depends(
         value=token,
         httponly=True,
         secure=False,       # True in production (HTTPS)
-        samesite="lax",
-        max_age=60 * 60,
+        samesite="none",
+        max_age=30*24*60*60,
     )
 
     return {
         "id": user.id,
         "email": user.email,
-        "full_name": user.full_name
+        "full_name": user.full_name,
+        "access_token": token
     }
 
 

@@ -4,6 +4,7 @@ from datetime import datetime
 
 class Camera(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id", unique=True, index=True)
     name: str
     room: str
     location_type: str

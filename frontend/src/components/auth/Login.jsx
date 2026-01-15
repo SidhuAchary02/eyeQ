@@ -23,7 +23,10 @@ export default function LoginPage() {
                 { email, password },
                 { withCredentials: true });
             console.log("Login successful:", data);
-            setUser(data.data);
+            const userData = data.data;
+            localStorage.setItem("access_token", userData.access_token || userData.token);
+            localStorage.setItem("user", JSON.stringify(userData));
+            setUser(userData);
             navigate("/dashboard");
 
         } catch (error) {

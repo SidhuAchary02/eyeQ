@@ -25,8 +25,15 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarOpen, setS
   }
 
   const handleLogout = async () => {
-    await axios.post("http://localhost:8000/auth/logout", {}, { withCredentials: true });
+    try {
+      await axios.post("http://localhost:8000/auth/logout", {}, { withCredentials: true });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
     setUser(null);
+    navigate("/login");
   }
 
   return (
