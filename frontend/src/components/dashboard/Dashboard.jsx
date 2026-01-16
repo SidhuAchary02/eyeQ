@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { useContext, useState, useEffect } from "react"
 import { Activity, Video, AlertCircle, TrendingUp, Menu } from "lucide-react"
 import Sidebar from "./Sidebar"
 import CamerasPage from "./camera/CamerasPage"
@@ -6,21 +6,44 @@ import ImagesPage from "./cameraFeed/ImagesPage"
 import ModelsPage from "./ModelsPage"
 import SettingsPage from "./SettingsPage"
 import { AuthContext } from "../../context/AuthContext"
+import { getCameras } from "./camera/cameraApi"
 
 export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [cameras, setCameras] = useState([])
+  const [snapshots, setSnapshots] = useState([])
+  const [loadingCameras, setLoadingCameras] = useState(true)
 
   const {user, loading} = useContext(AuthContext);
 
+  // Fetch cameras and snapshots
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const camerasRes = await getCameras();
+        setCameras(camerasRes || []);
+        
+        // Fetch snapshots
+        const snapshotsRes = await fetch("http://localhost:8001/snapshots");
+        const snapshotsData = await snapshotsRes.json();
+        setSnapshots(snapshotsData.snapshots || []);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoadingCameras(false);
+      }
+    }
+    fetchData();
+  }, []);
+
   const stats = [
-    { label: "Active Cameras", value: "4", icon: Video, color: "bg-blue-100 text-blue-600" },
-    // { label: "Detections Today", value: "1,234", icon: TrendingUp, color: "bg-green-100 text-green-600" },
-    { label: "Alerts", value: "12", icon: AlertCircle, color: "bg-red-100 text-red-600" },
-    // { label: "System Status", value: "Healthy", icon: Activity, color: "bg-emerald-100 text-emerald-600" },
+    { label: "Active Cameras", value: cameras.length.toString(), icon: Video, color: "bg-blue-100 text-blue-600" },
+    { label: "Snapshots", value: snapshots.length.toString(), icon: TrendingUp, color: "bg-green-100 text-green-600" },
+    // { label: "Alerts", value: "12", icon: AlertCircle, color: "bg-red-100 text-red-600" },
   ]
 
-  if(loading) return null;
+  if(loading || loadingCameras) return null;
 
   const renderPage = () => {
     switch (currentPage) {
@@ -48,21 +71,48 @@ export default function Dashboard() {
               })}
             </div>
 
-            {/* Recent Activity */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Detections</h3>
-              <div className="space-y-3">
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <div key={item} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                    <div>
-                      <p className="font-medium text-gray-900">Person detected - Backyard</p>
-                      <p className="text-sm text-gray-600">2 minutes ago</p>
+            {/* Active Cameras */}
+            {cameras.length > 0 && (
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Active Cameras</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {cameras.map((camera) => (
+                    <div key={camera.id} className="p-4 border border-gray-100 rounded-lg hover:shadow-md transition">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        <p className="font-medium text-gray-900">{camera.name || `Camera ${camera.id}`}</p>
+                      </div>
+                      <p className="text-xs text-gray-600">ID: {camera.id}</p>
                     </div>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">Person</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Snapshots */}
+            {snapshots.length > 0 && (
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Person Detection Snapshots (30+ sec)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {snapshots.slice(0, 8).map((snapshot, idx) => (
+                    <div key={idx} className="border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition">
+                      <img 
+                        src={`file://${snapshot.path}`} 
+                        alt={snapshot.filename}
+                        className="w-full h-32 object-cover bg-gray-100"
+                        onError={(e) => e.target.src = '/placeholder.png'}
+                      />
+                      <div className="p-2">
+                        <p className="text-xs text-gray-600 truncate">{snapshot.filename}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(snapshot.timestamp * 1000).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )
       case "cameras":

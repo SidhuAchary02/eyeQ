@@ -37,7 +37,7 @@ export const AddCameraForm = () => {
         location_type: formData.location_type,
         lighting: formData.lighting,
         source_type: sourceType,
-        rtsp_url: sourceType === "rtsp" ? formData.rtsp_url : null,
+        rtsp_url: sourceType === "rtsp" ? formData.rtspUrl : null,
       };
 
       const data = await createCamera(payload);

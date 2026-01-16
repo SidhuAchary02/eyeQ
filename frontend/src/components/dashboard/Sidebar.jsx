@@ -35,7 +35,7 @@ export default function Sidebar({ currentPage, setCurrentPage, sidebarOpen, setS
     setUser(null);
     navigate("/login");
   }
-
+ 
   return (
     <>
       {/* Desktop Sidebar */}

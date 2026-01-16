@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from schemas import camera
 from sqlmodel import SQLModel
 from db import engine
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,22 +38,31 @@ class DetectionRequest(BaseModel):
 
 AI_SERVICE_URL = "http://localhost:8001/detect"  # URL of the ai_service FastAPI server
 
-@app.post("/start-detection")
-async def start_detection(request: DetectionRequest):
-    """
-    Endpoint to start detection on the provided RTSP URL.
-    Calls the ai_service to perform the detection.
-    """
-    rtsp_url = request.rtsp_url
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(AI_SERVICE_URL, json={"rtsp_url": rtsp_url})
-            if response.status_code == 200:
-                return {"message": "Detection started successfully", "details": response.json()}
-            else:
-                raise HTTPException(status_code=response.status_code, detail="Failed to start detection")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# @app.post("/start-detection")
+# async def start_detection(request: DetectionRequest):
+#     """
+#     Endpoint to start detection on the provided RTSP URL.
+#     Calls the ai_service to perform the detection.
+#     """
+#     rtsp_url = request.rtsp_url
+#     try:
+#         async with httpx.AsyncClient(timeout=5) as client:
+#             resp = await client.post(
+#                 AI_SERVICE_URL,
+#                 json={
+#                     "rtsp_url": camera.rtsp_url,
+#                     "camera_id": camera.id
+#                 }
+#             )
+
+#         if resp.status_code != 200:
+#             raise HTTPException(
+#                 500,
+#                 "Camera saved, but AI service failed to start"
+#             )
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
