@@ -1,4 +1,4 @@
-# EyeQ - Project Context Report (for ChatGPT)
+# EyeQ - A real-time AI-powered video monitoring system with WebSocket-based detection streaming and multi-service architecture.
 
 This README is written as a full context handoff so an AI assistant can quickly understand what I built, what tools I used, what currently works, and what is still pending.
 
